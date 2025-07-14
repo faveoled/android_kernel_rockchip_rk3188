@@ -12,15 +12,17 @@
 # Change this to use a different config.h
 CONFIG ?= os_memory_64m
 
+srcpmb := $(srctree)/drivers/gpu/mali/DX910-SW-99002-r3p2-01rel3/driver/src/devicedrv/ump/
+
 # Validate selected config
-ifneq ($(shell [ -d $(src)/arch-$(CONFIG) ] && [ -f  $(src)/arch-$(CONFIG)/config.h ] && echo "OK"), OK)
-$(warning Current directory is $(src))
+ifneq ($(shell [ -d $(srcpmb)/arch-$(CONFIG) ] && [ -f  $(srcpmb)/arch-$(CONFIG)/config.h ] && echo "OK"), OK)
+$(warning Current directory is $(srcpmb))
 $(error No configuration found for config $(CONFIG). Check that arch-$(CONFIG)/config.h exists)
 else
 # Link arch to the selected arch-config directory
-$(shell [ -L $(src)/arch ] && rm $(src)/arch)
-$(shell ln -sf arch-$(CONFIG) $(src)/arch)
-$(shell touch $(src)/arch/config.h)
+$(shell [ -L $(srcpmb)/arch ] && rm $(srcpmb)/arch)
+$(shell ln -sf arch-$(CONFIG) $(srcpmb)/arch)
+$(shell touch $(srcpmb)/arch/config.h)
 endif
 
 UDD_FILE_PREFIX = ../mali/
@@ -31,7 +33,7 @@ SVN_REV := $(shell ((svnversion | grep -qv exported && echo -n 'Revision: ' && s
 ccflags-y += -DSVN_REV=$(SVN_REV)
 ccflags-y += -DSVN_REV_STRING=\"$(SVN_REV)\"
 
-ccflags-y += -I$(src) -I$(src)/common -I$(src)/linux -I$(src)/../mali/common -I$(src)/../mali/linux -I$(src)/../../ump/include/ump
+ccflags-y += -I$(srcpmb) -I$(srcpmb)/common -I$(srcpmb)/linux -I$(srcpmb)/../mali/common -I$(srcpmb)/../mali/linux -I$(srcpmb)/../../ump/include/ump
 ccflags-y += -DMALI_STATE_TRACKING=0
 ccflags-$(CONFIG_UMP_DEBUG) += -DDEBUG
 
@@ -39,10 +41,10 @@ ccflags-$(CONFIG_UMP_DEBUG) += -DDEBUG
 # The ARM proprietary product will only include the license/proprietary directory
 # The GPL product will only include the license/gpl directory
 
-ifeq ($(wildcard $(src)/linux/license/gpl/*),)
-ccflags-y += -I$(src)/linux/license/proprietary
+ifeq ($(wildcard $(srcpmb)/linux/license/gpl/*),)
+ccflags-y += -I$(srcpmb)/linux/license/proprietary
 else
-ccflags-y += -I$(src)/linux/license/gpl
+ccflags-y += -I$(srcpmb)/linux/license/gpl
 endif
 
 ump-y = common/ump_kernel_common.o \
